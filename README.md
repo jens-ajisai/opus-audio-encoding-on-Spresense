@@ -315,13 +315,13 @@ which is defined in modules/audio/include/apus/dsp_audio_version.h as 0x010306
 
 Building within Spresense SDK based on a modified worker within the audio_player_objif example. 
 It was really hard to get it linked. 
-	* Finally I gave up using ld to link the final binary, but switched to g++ which is what also Arduino does. g++ automatically links required parts of the standard library required for e.g. new or malloc and passes certain options for linking. 
-	* I introduced the compile flags I used in the Arduino environment.
-	* It seems to be important to give the libraries in right order to the linker. This can be mitigated by using -Wl,--start-group and -Wl,--end-group.
-	* STACK_SIZE needs to be passed to the linker as symbol. The size of 0x8000 makes me assume that this is heap and stack. When using g++ it can be defined by using -Wl like -Wl,--defsym,STACK_SIZE=0x8000
-	* There is a definition of max-page-size=256. Maybe that gives a hint that the a DSP really may not exceed 256KB.
-	* The linker complained that the symbol "end" required by sbrk is not defined. According to [undefined reference to `end' in sbrk.c in library libnosys.a !! - Code Composer Studio  forum - Code Composer Studio™︎ - TI E2E support forums](https://e2e.ti.com/support/tools/code-composer-studio-group/ccs/f/code-composer-studio-forum/382293/undefined-reference-to-end-in-sbrk-c-in-library-libnosys-a) it needs to point to the end of the heap. So I modified sdk/tools/asmp-elf.ld by adding end = __stack; at the end of .bss. Not sure if that is really correct. Spresense only defines a heapstack. End of heap is likely __stack minus stack size.
-	* To include the DSP binary in the build. EXAMPLES_AUDIO_RECORDER_OBJIF_USEPREPROC needs to be conigured by SDK config.
+* Finally I gave up using ld to link the final binary, but switched to g++ which is what also Arduino does. g++ automatically links required parts of the standard library required for e.g. new or malloc and passes certain options for linking. 
+* I introduced the compile flags I used in the Arduino environment.
+* It seems to be important to give the libraries in right order to the linker. This can be mitigated by using -Wl,--start-group and -Wl,--end-group.
+* STACK_SIZE needs to be passed to the linker as symbol. The size of 0x8000 makes me assume that this is heap and stack. When using g++ it can be defined by using -Wl like -Wl,--defsym,STACK_SIZE=0x8000
+* There is a definition of max-page-size=256. Maybe that gives a hint that the a DSP really may not exceed 256KB.
+* The linker complained that the symbol "end" required by sbrk is not defined. According to [undefined reference to `end' in sbrk.c in library libnosys.a !! - Code Composer Studio  forum - Code Composer Studio™︎ - TI E2E support forums](https://e2e.ti.com/support/tools/code-composer-studio-group/ccs/f/code-composer-studio-forum/382293/undefined-reference-to-end-in-sbrk-c-in-library-libnosys-a) it needs to point to the end of the heap. So I modified sdk/tools/asmp-elf.ld by adding end = __stack; at the end of .bss. Not sure if that is really correct. Spresense only defines a heapstack. End of heap is likely __stack minus stack size.
+* To include the DSP binary in the build. EXAMPLES_AUDIO_RECORDER_OBJIF_USEPREPROC needs to be conigured by SDK config.
 
 I put the worker folder into the repository under 06_DSP_built_with_SDK, however it does not work and I proceeded with the Arduino build. It is there just for reference, in case you want to try finishing this task.
 
